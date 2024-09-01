@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import styles from "./canvas.module.css";
 import { canvasSize } from "../../constants";
 import { circleRadius } from "../../constants";
-import { drawCircle, updatePosition } from "../../utils";
+import { drawCircle, updatePosition, createBullet } from "../../utils";
+import { newBullets } from "../../utils/newBullets";
+import { hitCheck } from "../../utils/hitСheck";
 // import { handleMouseMove } from "../../utils";
 
 export const Canvas = ({ ...props }) => {
@@ -15,6 +17,7 @@ export const Canvas = ({ ...props }) => {
       circleRadius,
       speed: 2,
       color: "Red",
+      bulletColor: "green",
     },
     {
       name: "circle2",
@@ -23,25 +26,13 @@ export const Canvas = ({ ...props }) => {
       circleRadius,
       speed: 1,
       color: "blue",
+      bulletColor: "green",
     },
   ]);
-  // ====================================================================
-  const createBullet = (fromHero, toHero) => {
-    const angle = Math.atan2(toHero.y - fromHero.y, toHero.x - fromHero.x);
-    const speed = 5;
-    return {
-      x: fromHero.x,
-      y: fromHero.y,
-      radius: 5,
-      color: "black",
-      velocityX: Math.cos(angle) * speed,
-      velocityY: Math.sin(angle) * speed,
-    };
-  };
-  // ===================================================================
 
+  const [hit, setHit] = useState(0);
   const [bullets, setBullets] = useState([]);
-
+  const lastBulletTimeRef = useRef(Date.now());
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -62,21 +53,21 @@ export const Canvas = ({ ...props }) => {
       );
 
       setHeroes(updatedHeroes);
+
       ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
-      // ===================================================================\
+
       updatedHeroes.forEach((hero) => {
         drawCircle(ctx, hero);
       });
-      // =======================================================================
-      const newBullets = [];
-      updatedHeroes.forEach((hero, index) => {
-        const targetHero = updatedHeroes[(index + 1) % updatedHeroes.length]; // Находим цель
-        newBullets.push(createBullet(hero, targetHero));
-      });
-      setBullets(newBullets);
 
-      // Обновляем и отрисовываем пули
-      const updatedBullets = bullets
+      console.log("bullets", bullets);
+
+      const updatedBullets = newBullets(
+        bullets,
+        updatedHeroes,
+        lastBulletTimeRef,
+        createBullet
+      )
         .map((bullet) => ({
           ...bullet,
           x: bullet.x + bullet.velocityX,
@@ -90,9 +81,11 @@ export const Canvas = ({ ...props }) => {
             bullet.y < canvasSize.height
         );
 
+      hitCheck(updatedBullets, updatedHeroes, setHit);
+
       setBullets(updatedBullets);
 
-      updatedBullets.forEach((bullet) => {
+      bullets.forEach((bullet) => {
         ctx.beginPath();
         ctx.arc(bullet.x, bullet.y, bullet.radius, 0, Math.PI * 2);
         ctx.fillStyle = bullet.color;
@@ -102,6 +95,7 @@ export const Canvas = ({ ...props }) => {
 
       ctx.fillRect(mousePos.x, mousePos.y, 15, 15);
     };
+
     requestAnimationFrame(animate);
 
     return () => {

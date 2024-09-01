@@ -1,10 +1,13 @@
-export const createBullet = (fromCircle, spreadAngle, speed) => {
+export const createBullet = (fromHero, toHero) => {
+  const angle = Math.atan2(toHero.y - fromHero.y, toHero.x - fromHero.x);
+  const speed = 10;
   return {
-    x: fromCircle.x,
-    y: fromCircle.y,
+    toHero: toHero.name,
+    x: fromHero.x,
+    y: fromHero.y,
     radius: 5,
-    color: "black",
-    velocityX: Math.cos(spreadAngle) * speed,
-    velocityY: Math.sin(spreadAngle) * speed,
+    color: fromHero.bulletColor,
+    velocityX: Math.cos(angle) * speed,
+    velocityY: Math.sin(angle) * speed,
   };
 };
