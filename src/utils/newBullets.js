@@ -7,7 +7,7 @@ export const newBullets = (
   const newBullets = [...bullets];
   const now = Date.now();
 
-  if (now - lastBulletTimeRef.current >= 100) {
+  if (now - lastBulletTimeRef.current >= 1000) {
     updatedHeroes.forEach((hero, index) => {
       const targetHero = updatedHeroes[(index + 1) % updatedHeroes.length];
       let foo = createBullet(hero, targetHero);

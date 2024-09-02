@@ -3,6 +3,7 @@ import { canvasSize, circleRadius } from "../../constants";
 import { Menu } from "../menu/menu";
 import { useRef, useState } from "react";
 import { getHeroPosition } from "../../utils";
+import { RangeSlider } from "../range_slider.js/rangeSlider";
 
 export const Game = () => {
   const canvasRef = useRef(null);
@@ -78,8 +79,16 @@ export const Game = () => {
         heroes={heroes}
         setHeroes={setHeroes}
       />
+      <div>
+        <RangeSlider />
+        <RangeSlider />
+      </div>
       {contextMenu.visible && (
-        <Menu heroes={heroes} setHeroes={setHeroes} contextMenu={contextMenu} />
+        <Menu
+          heroes={heroes}
+          contextMenu={contextMenu}
+          setContextMenu={setContextMenu}
+        />
       )}
     </>
   );

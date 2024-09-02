@@ -1,14 +1,12 @@
-import { useState } from "react";
 import styles from "./menu.module.css";
 import { colors } from "../../constants";
 
-export const Menu = ({ heroes, setHeroes, contextMenu }) => {
-  // const current = heroes.find
-
+export const Menu = ({ heroes, contextMenu, setContextMenu }) => {
   const colorSelection = (colorCode) => {
     heroes.forEach((hero) => {
       if (hero.id === contextMenu.heroId) {
         hero.bulletColor = colorCode;
+        setContextMenu({ ...contextMenu, visible: false });
       }
     });
   };
@@ -28,7 +26,6 @@ export const Menu = ({ heroes, setHeroes, contextMenu }) => {
           key={id}
         >
           <div>{colorName}</div>
-          <div></div>
         </div>
       ))}
     </div>

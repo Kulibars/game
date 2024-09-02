@@ -1,11 +1,10 @@
 import "./App.css";
-import { Game, CanvasAnimation } from "./components";
+import { Game } from "./components";
 
 function App() {
   return (
     <div className="App">
       <Game />
-      {/* <CanvasAnimation /> */}
     </div>
   );
 }

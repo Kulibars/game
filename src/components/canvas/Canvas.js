@@ -26,7 +26,7 @@ export const Canvas = forwardRef(
       const canvas = ref.current;
       const ctx = canvas.getContext("2d");
 
-      const animate = (currentTime) => {
+      const animate = () => {
         ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
         const updatedHeroes = heroes.map((hero) =>
           updatePosition(hero, canvasSize, mousePos)
@@ -37,8 +37,6 @@ export const Canvas = forwardRef(
         updatedHeroes.forEach((hero) => {
           drawCircle(ctx, hero);
         });
-
-        // console.log("bullets", bullets);
 
         const updatedBullets = newBullets(
           bullets,
@@ -70,33 +68,17 @@ export const Canvas = forwardRef(
 
         ctx.fillRect(mousePos.x, mousePos.y, 15, 15);
       };
+      canvas.addEventListener("contextmenu", handleContextMenu);
       canvas.addEventListener("mousemove", handleMouseMove);
       requestAnimationFrame(animate);
 
       return () => {
-        canvas.addEventListener("contextmenu", handleContextMenu);
+        canvas.removeEventListener("contextmenu", handleContextMenu);
         canvas.removeEventListener("mousemove", handleMouseMove);
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [heroes, ref]);
 
-    return (
-      <>
-        <canvas className={styles.canvas} ref={ref} {...props}></canvas>
-        {/* className={styles.canvas} */}
-        {/* {contextMenu.visible && (
-        <div
-          className={styles.contextMenu}
-          style={{ top: contextMenu.y, left: contextMenu.x }}
-        >
-          <ul>
-            <li>Опция 1</li>
-            <li>Опция 2</li>
-            <li>Опция 3</li>
-          </ul>
-        </div>
-      )} */}
-      </>
-    );
+    return <canvas className={styles.canvas} ref={ref} {...props}></canvas>;
   }
 );
