@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useRef, useState } from "react";
 import styles from "./canvas.module.css";
 import { canvasSize } from "../../constants";
 import { circleRadius } from "../../constants";
@@ -7,102 +7,96 @@ import { newBullets } from "../../utils/newBullets";
 import { hitCheck } from "../../utils/hitСheck";
 // import { handleMouseMove } from "../../utils";
 
-export const Canvas = ({ ...props }) => {
-  const [mousePos, setMousePos] = useState({ x: null, y: null });
-  const [heroes, setHeroes] = useState([
+export const Canvas = forwardRef(
+  (
     {
-      name: "circle1",
-      y: canvasSize.height - circleRadius,
-      x: circleRadius,
-      circleRadius,
-      speed: 2,
-      color: "Red",
-      bulletColor: "green",
+      mousePos,
+      handleMouseMove,
+      handleContextMenu,
+      heroes,
+      setHeroes,
+      ...props
     },
-    {
-      name: "circle2",
-      y: 0 + circleRadius,
-      x: canvasSize.width - circleRadius,
-      circleRadius,
-      speed: 1,
-      color: "blue",
-      bulletColor: "green",
-    },
-  ]);
+    ref
+  ) => {
+    const [bullets, setBullets] = useState([]);
+    const lastBulletTimeRef = useRef(Date.now());
 
-  const [hit, setHit] = useState(0);
-  const [bullets, setBullets] = useState([]);
-  const lastBulletTimeRef = useRef(Date.now());
-  const canvasRef = useRef(null);
+    useEffect(() => {
+      const canvas = ref.current;
+      const ctx = canvas.getContext("2d");
 
-  useEffect(() => {
-    const handleMouseMove = (event) => {
-      const rect = canvas.getBoundingClientRect();
-      setMousePos({
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top,
-      });
-    };
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    canvas.addEventListener("mousemove", handleMouseMove);
-
-    const animate = (currentTime) => {
-      const updatedHeroes = heroes.map((hero) =>
-        updatePosition(hero, canvasSize, mousePos)
-      );
-
-      setHeroes(updatedHeroes);
-
-      ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
-
-      updatedHeroes.forEach((hero) => {
-        drawCircle(ctx, hero);
-      });
-
-      console.log("bullets", bullets);
-
-      const updatedBullets = newBullets(
-        bullets,
-        updatedHeroes,
-        lastBulletTimeRef,
-        createBullet
-      )
-        .map((bullet) => ({
-          ...bullet,
-          x: bullet.x + bullet.velocityX,
-          y: bullet.y + bullet.velocityY,
-        }))
-        .filter(
-          (bullet) =>
-            bullet.x > 0 &&
-            bullet.x < canvasSize.width &&
-            bullet.y > 0 &&
-            bullet.y < canvasSize.height
+      const animate = (currentTime) => {
+        ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
+        const updatedHeroes = heroes.map((hero) =>
+          updatePosition(hero, canvasSize, mousePos)
         );
 
-      hitCheck(updatedBullets, updatedHeroes, setHit);
+        setHeroes(updatedHeroes);
 
-      setBullets(updatedBullets);
+        updatedHeroes.forEach((hero) => {
+          drawCircle(ctx, hero);
+        });
 
-      bullets.forEach((bullet) => {
-        ctx.beginPath();
-        ctx.arc(bullet.x, bullet.y, bullet.radius, 0, Math.PI * 2);
-        ctx.fillStyle = bullet.color;
-        ctx.fill();
-      });
-      // =====================================================================\
+        // console.log("bullets", bullets);
 
-      ctx.fillRect(mousePos.x, mousePos.y, 15, 15);
-    };
+        const updatedBullets = newBullets(
+          bullets,
+          updatedHeroes,
+          lastBulletTimeRef,
+          createBullet
+        )
+          .map((bullet) => ({
+            ...bullet,
+            x: bullet.x + bullet.velocityX,
+            y: bullet.y + bullet.velocityY,
+          }))
+          .filter(
+            (bullet) =>
+              bullet.x > 0 &&
+              bullet.x < canvasSize.width &&
+              bullet.y > 0 &&
+              bullet.y < canvasSize.height
+          );
 
-    requestAnimationFrame(animate);
+        setBullets(updatedBullets);
 
-    return () => {
-      canvas.removeEventListener("mousemove", handleMouseMove);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [heroes]);
+        bullets.forEach((bullet) => {
+          ctx.beginPath();
+          ctx.arc(bullet.x, bullet.y, bullet.radius, 0, Math.PI * 2);
+          ctx.fillStyle = bullet.color;
+          ctx.fill();
+        });
 
-  return <canvas className={styles.canvas} ref={canvasRef} {...props}></canvas>;
-};
+        ctx.fillRect(mousePos.x, mousePos.y, 15, 15);
+      };
+      canvas.addEventListener("mousemove", handleMouseMove);
+      requestAnimationFrame(animate);
+
+      return () => {
+        canvas.addEventListener("contextmenu", handleContextMenu);
+        canvas.removeEventListener("mousemove", handleMouseMove);
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [heroes, ref]);
+
+    return (
+      <>
+        <canvas className={styles.canvas} ref={ref} {...props}></canvas>
+        {/* className={styles.canvas} */}
+        {/* {contextMenu.visible && (
+        <div
+          className={styles.contextMenu}
+          style={{ top: contextMenu.y, left: contextMenu.x }}
+        >
+          <ul>
+            <li>Опция 1</li>
+            <li>Опция 2</li>
+            <li>Опция 3</li>
+          </ul>
+        </div>
+      )} */}
+      </>
+    );
+  }
+);

@@ -1,6 +1,6 @@
 export const createBullet = (fromHero, toHero) => {
   const angle = Math.atan2(toHero.y - fromHero.y, toHero.x - fromHero.x);
-  const speed = 10;
+  const speed = 5;
   return {
     toHero: toHero.name,
     x: fromHero.x,
