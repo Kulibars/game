@@ -1,11 +1,13 @@
-import { forwardRef, useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import styles from "./canvas.module.css";
 import { canvasSize } from "../../constants";
-import { circleRadius } from "../../constants";
-import { drawCircle, updatePosition, createBullet } from "../../utils";
-import { newBullets } from "../../utils/newBullets";
-import { hitCheck } from "../../utils/hitСheck";
-// import { handleMouseMove } from "../../utils";
+
+import {
+  drawCircle,
+  updatePosition,
+  createSpell,
+  newSpellsAndUpdatedSpells,
+} from "../../utils";
 
 export const Canvas = forwardRef(
   (
@@ -19,8 +21,7 @@ export const Canvas = forwardRef(
     },
     ref
   ) => {
-    const [bullets, setBullets] = useState([]);
-    const lastBulletTimeRef = useRef(Date.now());
+    const [spells, setSpells] = useState([]);
 
     useEffect(() => {
       const canvas = ref.current;
@@ -28,6 +29,7 @@ export const Canvas = forwardRef(
 
       const animate = () => {
         ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
+
         const updatedHeroes = heroes.map((hero) =>
           updatePosition(hero, canvasSize, mousePos)
         );
@@ -38,35 +40,20 @@ export const Canvas = forwardRef(
           drawCircle(ctx, hero);
         });
 
-        const updatedBullets = newBullets(
-          bullets,
+        const updatedSpells = newSpellsAndUpdatedSpells(
+          spells,
           updatedHeroes,
-          lastBulletTimeRef,
-          createBullet
-        )
-          .map((bullet) => ({
-            ...bullet,
-            x: bullet.x + bullet.velocityX,
-            y: bullet.y + bullet.velocityY,
-          }))
-          .filter(
-            (bullet) =>
-              bullet.x > 0 &&
-              bullet.x < canvasSize.width &&
-              bullet.y > 0 &&
-              bullet.y < canvasSize.height
-          );
+          createSpell,
+          canvasSize
+        );
 
-        setBullets(updatedBullets);
+        setSpells(updatedSpells);
 
-        bullets.forEach((bullet) => {
-          ctx.beginPath();
-          ctx.arc(bullet.x, bullet.y, bullet.radius, 0, Math.PI * 2);
-          ctx.fillStyle = bullet.color;
-          ctx.fill();
+        updatedSpells.forEach((spell) => {
+          drawCircle(ctx, spell);
         });
 
-        ctx.fillRect(mousePos.x, mousePos.y, 15, 15);
+        // ctx.fillRect(mousePos.x, mousePos.y, 15, 15);
       };
       canvas.addEventListener("contextmenu", handleContextMenu);
       canvas.addEventListener("mousemove", handleMouseMove);

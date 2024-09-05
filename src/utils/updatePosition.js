@@ -1,8 +1,8 @@
 export const updatePosition = (hero, canvasSize, mousePos) => {
   let newY = (hero.y += hero.speed);
   if (
-    hero.y + hero.circleRadius > canvasSize.height ||
-    hero.y - hero.circleRadius < 0
+    hero.y + hero.circleRadius >= canvasSize.height ||
+    hero.y - hero.circleRadius <= 0
   ) {
     hero.speed = -hero.speed;
   }

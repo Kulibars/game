@@ -1,0 +1,12 @@
+.range_box {
+  width: 176px;
+  display: block;
+  align-items: center;
+  padding: 20px;
+  background-color: #dccfcf;
+  border-radius: 10px;
+}
+
+.rangeValu {
+  padding: 5px;
+}

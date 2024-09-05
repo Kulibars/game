@@ -1,9 +1,11 @@
+import styles from "./game.module.css";
 import { Canvas } from "../canvas/Canvas";
 import { canvasSize, circleRadius } from "../../constants";
 import { Menu } from "../menu/menu";
 import { useRef, useState } from "react";
 import { getHeroPosition } from "../../utils";
-import { RangeSlider } from "../range_slider.js/rangeSlider";
+import { Sliders } from "../sliders/sliders.js";
+import { Scoreboard } from "../scoreboard/scoreboard";
 
 export const Game = () => {
   const canvasRef = useRef(null);
@@ -19,21 +21,27 @@ export const Game = () => {
   const [heroes, setHeroes] = useState([
     {
       id: 1,
-      y: canvasSize.height - circleRadius,
+      y: canvasSize.height - circleRadius - 1,
       x: circleRadius,
       circleRadius,
-      speed: 2,
+      speed: 1,
       color: "Red",
       bulletColor: "green",
+      shotsInterval: 1,
+      hit: 0,
+      lastShotTime: new Date(),
     },
     {
       id: 2,
-      y: 0 + circleRadius,
+      y: 0 + circleRadius + 1,
       x: canvasSize.width - circleRadius,
       circleRadius,
       speed: 1,
+      hit: 0,
       color: "blue",
       bulletColor: "green",
+      shotsInterval: 1,
+      lastShotTime: new Date(),
     },
   ]);
 
@@ -69,6 +77,7 @@ export const Game = () => {
 
   return (
     <>
+      <Scoreboard heroes={heroes} />
       <Canvas
         ref={canvasRef}
         width={canvasSize.width}
@@ -79,9 +88,9 @@ export const Game = () => {
         heroes={heroes}
         setHeroes={setHeroes}
       />
-      <div>
-        <RangeSlider />
-        <RangeSlider />
+      <div className={styles.sliderContainer}>
+        <Sliders heroes={heroes} id={1} />
+        <Sliders heroes={heroes} id={2} />
       </div>
       {contextMenu.visible && (
         <Menu

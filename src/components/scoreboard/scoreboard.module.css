@@ -1,0 +1,16 @@
+.score_box {
+  margin: 1px auto;
+  width: 800px;
+  height: 142px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 40px;
+}
+
+.score {
+  height: 110px;
+  margin: 16px 16px;
+  padding: 0 13px;
+  border-radius: 10px;
+  background-color: #dccfcf;
+}
